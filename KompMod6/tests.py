@@ -13,7 +13,6 @@ def kramer_smirnov(seq, alpha):
     
     def i_func(v, z):
         k = 0
-        hh = k
         return sc.sum((z / 2)**(v + 2*k) / (scsp.gamma(k + 1) * scsp.gamma(k + v + 1)), k)
 
     def calc_a1(s_star):
