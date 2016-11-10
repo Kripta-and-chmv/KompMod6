@@ -18,11 +18,14 @@ def get_arguments():
 
 
 def main():
-    sys.stdout = open("output.txt", "w+")
+    #sys.stdout = open("output.txt", "w+")
 
     #u, v, alpha = get_arguments()
-    
-    method.first(1, 1)
+    u, v, alpha = 1.5, 2.6, 0.05
+
+    seq = [method.second(u, v) for i in range(100)]
+
+    tests.chisqr_test(seq, alpha, v, u)
 
 
 if __name__ == "__main__":
