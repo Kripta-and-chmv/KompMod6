@@ -35,17 +35,18 @@ def kramer_smirnov(seq, alpha):
     
     return hit
 
-def chisqr_test(sequence, alpha, v, u):
+def chisqr_test(sequence, alpha, u, v):
     """Тест Хи-квадрат"""
     print("Тест хи квадрат:")
 
-    mod = max(sequence)
+    max_in_seq = max(sequence)
+    min_in_seq = min(sequence)
     len_seq = len(sequence)
-    # разбиваем отрезок от 0 до mod на интервалы
+    # разбиваем отрезок на интервалы
     intervals_amount = int(5 * sc.log10(len_seq))
     K = intervals_amount
-    lngth = mod/K   
-    intervals = [x * lngth for x in range(0, K+1)]
+    lngth = (max_in_seq - min_in_seq)/K
+    intervals = [x * lngth + min_in_seq for x in range(0, K+1)]
     
     #определяем количество попаданий в интервалы
     hits_amount = []    
@@ -58,12 +59,13 @@ def chisqr_test(sequence, alpha, v, u):
     # Вычисляется вероятность попадания слчайной величины в заданные
     # интервалы
     def calc_probs(intervals):
-        return [fisher.calc_cdf(v, u, x) - fisher.calc_cdf(v, u, y) for x, y in zip(intervals[1:], intervals[:-1])]
+        return [norm_d.cdf(x, u, v) - norm_d.cdf(y, u, v) for x, y in zip(intervals[1:], intervals[:-1])]
 
     probabils = calc_probs(intervals)
-
-    def graph(intervals, probabils, emper_prob):
-        width = intervals[len(intervals) - 1] / (len(intervals) - 1)
+    kk = sum(probabils)
+    kkk = sum(emper_prob)
+    def graph(intervals, probabils, emper_prob, width):
+        #width = intervals[len(intervals) - 1] / (len(intervals) - 1)
         fig = plt.figure()
         ax = fig.add_subplot(111)
         ax.bar(intervals[:len(intervals) - 1], probabils, width, color="white", label = u'Theoretical')
@@ -75,9 +77,7 @@ def chisqr_test(sequence, alpha, v, u):
         plt.xticks(intervals)
         plt.show()
 
-
-
-    graph(intervals, probabils, emper_prob)
+    graph(intervals, probabils, emper_prob, lngth)
     # вычисляется статистика
     addition = 0
     for hits, probs in zip(hits_amount, probabils):
@@ -95,7 +95,7 @@ def chisqr_test(sequence, alpha, v, u):
         return x ** (r / 2 - 1) * sc.exp(-x / 2)
 
     prob_s = sc.integrate.quad(integrand, s_star, np.inf, args = (r))
-    prob_s = prob_s[0] / (2 ** (r / 2) * scsp.gamma(r / 2))
+    prob_s = prob_s[0] / (2 ** (r / 2) * sc.special.gamma(r / 2))
 
     print("\tP(S*>S) - {}".format(prob_s))
     print("\tПрохождение теста хи квадрат - {}\n".format(prob_s > alpha))

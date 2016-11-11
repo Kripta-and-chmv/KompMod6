@@ -1,7 +1,8 @@
 import random
 import numpy as np
+import scipy as sc
 
-def first(u, v):
+def first_method(u, v):
     """for u, v - integer
     """
     rand_arr = []
@@ -12,7 +13,7 @@ def first(u, v):
 
     return rand_arr[u-1]
 
-def second(u, v):
+def second_method(u, v):
     """for u, v - positive
     """
     q1 = random.random()
@@ -27,3 +28,18 @@ def second(u, v):
         q2_pow = q2**(1/v)
 
     return q1_pow / (q1_pow + q2_pow)
+
+def pdf(x, u, v):
+    return (x**(u-1) * (1 - x)**(v-1)) / sc.special.beta(u, v)
+
+def cdf(x, u, v):
+    def i_func(x, a, b):
+        def integ(x, a, b):
+            return x**(a-1) * (1 - x)**(b-1)
+        def inc_bet(x, a, b):
+            k = sc.integrate.quad(integ, 0, x, args=(a, b))
+            return k[0]
+
+        return inc_bet(x, a, b)/scsp.beta(a, b)
+    
+    return i_func(x, u, v)
