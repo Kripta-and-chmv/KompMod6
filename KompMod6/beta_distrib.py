@@ -29,10 +29,20 @@ def second_method(u, v):
 
     return q1_pow / (q1_pow + q2_pow)
 
-def pdf(x, u, v):
-    return (x**(u-1) * (1 - x)**(v-1)) / sc.special.beta(u, v)
+def bessel(u, v):
+    def integ(x, u, v):
+        return x**(u - 1) * (1 - x)**(v - 1)
+    return sc.integrate.quad(integ, 0, 1, args=(u, v))[0]
 
-def cdf(x, u, v):
+def calc_pdf(x, u, v):
+    numer1 = (x**(u-1)) 
+    numer2 = ((1 - x)**(v-1))
+    numer = numer1 * numer2
+    denumer = bessel(u, v)
+    k = numer / denumer
+    return k
+
+def calc_cdf(x, u, v):
     def i_func(x, a, b):
         def integ(x, a, b):
             return x**(a-1) * (1 - x)**(b-1)
@@ -40,6 +50,8 @@ def cdf(x, u, v):
             k = sc.integrate.quad(integ, 0, x, args=(a, b))
             return k[0]
 
-        return inc_bet(x, a, b)/scsp.beta(a, b)
+        return inc_bet(x, a, b)/sc.special.beta(a, b)
     
-    return i_func(x, u, v)
+    cdf1 = i_func(x, u, v)
+    #cdf2 = sc.integrate.quad(calc_pdf, 0, x, args = (u, v))
+    return cdf1

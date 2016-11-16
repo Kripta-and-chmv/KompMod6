@@ -22,7 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="beta_distrib_method.py">
+    <Compile Include="beta_distrib.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="fisher.py">

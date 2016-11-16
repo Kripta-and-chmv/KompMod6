@@ -6,7 +6,8 @@ from IPython.display import display
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 import sys
-import beta_distrib_method as method
+import beta_distrib as beta
+import fisher
 
 def get_arguments():
     with open("arguments.txt", "r") as f:
@@ -23,10 +24,14 @@ def main():
     #u, v, alpha = get_arguments()
     u, v, alpha = 1.5, 2.6, 0.05
 
-    seq = [method.second(u, v) for i in range(100)]
+    seq_bet = [beta.second_method(u, v) for i in range(100)]
 
-    tests.chisqr_test(seq, alpha, v, u)
+    tests.chisqr_test_bet(seq_bet, alpha, u, v)
+    tests.kramer_smirnov_fish(seq_bet, alpha, u, v)
 
+    seq_fish = [fisher.second_method(u, v) for i in range(100)]
+    tests.chisqr_test_fish(seq_fish, alpha, u, v)
+    tests.kramer_smirnov_fish(seq_fish, alpha, u, v)
 
 if __name__ == "__main__":
     main()
