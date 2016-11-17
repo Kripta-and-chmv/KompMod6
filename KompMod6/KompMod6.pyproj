@@ -22,9 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="beta_distrib.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="beta_distrib.py" />
     <Compile Include="fisher.py">
       <SubType>Code</SubType>
     </Compile>
@@ -32,6 +30,12 @@
     <Compile Include="tests.py">
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="arguments.txt">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="output.txt" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

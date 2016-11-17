@@ -19,17 +19,17 @@ def get_arguments():
 
 
 def main():
-    #sys.stdout = open("output.txt", "w+")
+    sys.stdout = open("output.txt", "w+")
 
-    #u, v, alpha = get_arguments()
-    u, v, alpha = 1.5, 2.6, 0.05
+    u, v, alpha = get_arguments()
+    length = 1000
 
-    seq_bet = [beta.second_method(u, v) for i in range(100)]
+    seq_bet = [beta.second_method(u, v) for i in range(length)]
 
     tests.chisqr_test_bet(seq_bet, alpha, u, v)
-    tests.kramer_smirnov_fish(seq_bet, alpha, u, v)
+    tests.kramer_smirnov_bet(seq_bet, alpha, u, v)
 
-    seq_fish = [fisher.second_method(u, v) for i in range(100)]
+    seq_fish = [fisher.second_method(u, v) for i in range(length)]
     tests.chisqr_test_fish(seq_fish, alpha, u, v)
     tests.kramer_smirnov_fish(seq_fish, alpha, u, v)
 

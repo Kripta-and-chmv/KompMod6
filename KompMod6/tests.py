@@ -7,11 +7,13 @@ import beta_distrib as bd
 import matplotlib.pyplot as plt
 
 def kramer_smirnov_fish(seq, alpha, u, v):
+    """Тест Крамера-Мизеса-Смирнова"""
     def calc_s_star(seq):
+        """Вычисляется S*"""
         len_seq = len(seq)
         s_star = sum([(fisher.calc_cdf(x, u, v) - (2 * i - 1) / (2 * len_seq))**2 \
             for x, i in zip(seq, range(1, len_seq+1))])
-        return s_star / (12 * len_seq)
+        return s_star + (12 * len_seq)
     
     def i_func(s_star):
         v = 1/4
@@ -21,6 +23,7 @@ def kramer_smirnov_fish(seq, alpha, u, v):
         return sum1 - sum2
 
     def calc_a1(s_star):
+        """Вычисляется а1"""
         j = 0
         t = (4*j + 1)**2 / (16 * s_star)
 
@@ -45,12 +48,13 @@ def kramer_smirnov_fish(seq, alpha, u, v):
     return hit
 
 def kramer_smirnov_bet(seq, alpha, u, v):
-
+    """Тест Крамера-Мизеса-Смирнова"""
     def calc_s_star(seq):
+        """Вычисляется S*"""
         len_seq = len(seq)
         s_star = sum([(bd.calc_cdf(x, u, v) - (2 * i - 1) / (2 * len_seq))**2 \
             for x, i in zip(seq, range(1, len_seq+1))])
-        return s_star / (12 * len_seq)
+        return s_star + (12 * len_seq)
     
     def i_func(s_star):
         v = 1/4
@@ -60,6 +64,7 @@ def kramer_smirnov_bet(seq, alpha, u, v):
         return sum1 - sum2
 
     def calc_a1(s_star):
+        """Вычисляется а1"""
         j = 0
         t = (4*j + 1)**2 / (16 * s_star)
 
@@ -73,6 +78,7 @@ def kramer_smirnov_bet(seq, alpha, u, v):
     seq.sort()
 
     s_star = calc_s_star(seq)
+    print("\tЗначение статистики - {}".format(s_star))
 
     a1 = calc_a1(s_star)
     print("\tP(S*>S) - {}".format(1 - a1))
@@ -111,7 +117,7 @@ def chisqr_test_bet(sequence, alpha, u, v):
     probabils = calc_probs(intervals)
     kk = sum(probabils)
     kkk = sum(emper_prob)
-    def graph(intervals, probabils, emper_prob, width):
+    def graph(intervals, probabils, emper_prob, width, u, v, n):
         #width = intervals[len(intervals) - 1] / (len(intervals) - 1)
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -122,9 +128,11 @@ def chisqr_test_bet(sequence, alpha, u, v):
         plt.xlabel('intervals')
         plt.ylabel('hits amount')
         plt.xticks(intervals)
+        url = 'images\\bet_u_{}_v_{}_len_{}.png'.format(u, v, n)
+        plt.savefig(url)
         plt.show()
 
-    graph(intervals, probabils, emper_prob, lngth)
+    graph(intervals, probabils, emper_prob, lngth, u, v, len_seq)
     # вычисляется статистика
     addition = 0
     for hits, probs in zip(hits_amount, probabils):
@@ -176,7 +184,7 @@ def chisqr_test_fish(sequence, alpha, u, v):
     probabils = calc_probs(intervals)
     kk = sum(probabils)
     kkk = sum(emper_prob)
-    def graph(intervals, probabils, emper_prob, width):
+    def graph(intervals, probabils, emper_prob, width, u, v, n):
         #width = intervals[len(intervals) - 1] / (len(intervals) - 1)
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -187,9 +195,11 @@ def chisqr_test_fish(sequence, alpha, u, v):
         plt.xlabel('intervals')
         plt.ylabel('hits amount')
         plt.xticks(intervals)
+        url = 'images\\fish_u_{}_v_{}_len_{}.png'.format(u, v, n)
+        plt.savefig(url)
         plt.show()
 
-    graph(intervals, probabils, emper_prob, lngth)
+    graph(intervals, probabils, emper_prob, lngth, u, v, len_seq)
     # вычисляется статистика
     addition = 0
     for hits, probs in zip(hits_amount, probabils):
