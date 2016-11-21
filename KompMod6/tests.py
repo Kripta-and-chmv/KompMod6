@@ -159,6 +159,15 @@ def chisqr_test_fish(sequence, alpha, u, v):
     """Тест Хи-квадрат для распределения Фишера"""
     print("Тест хи квадрат для распределения Фишера:")
 
+    i = 0
+    l = len(sequence)
+    while i < l:
+        if sequence[i] > 6:
+            sequence.remove(sequence[i])
+            i -= 1
+            l -= 1
+        i +=1
+
     max_in_seq = max(sequence)
     min_in_seq = min(sequence)
     len_seq = len(sequence)
