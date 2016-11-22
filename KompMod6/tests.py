@@ -11,9 +11,12 @@ def kramer_smirnov_fish(seq, alpha, u, v):
     def calc_s_star(seq):
         """Вычисляется S*"""
         len_seq = len(seq)
-        s_star = sum([(fisher.calc_cdf(x, u, v) - (2 * i - 1) / (2 * len_seq))**2 \
-            for x, i in zip(seq, range(1, len_seq+1))])
-        return s_star + (12 * len_seq)
+        s_star = 0
+        for i in range(len_seq):
+            addition = (2 * i - 1) / (2 * len_seq)
+            P = fisher.calc_cdf(seq[i], u, v)
+            s_star += (P - addition)**2
+        return s_star + 1 / (12 * len_seq)
     
     def i_func(s_star):
         v = 1/4
@@ -52,9 +55,12 @@ def kramer_smirnov_bet(seq, alpha, u, v):
     def calc_s_star(seq):
         """Вычисляется S*"""
         len_seq = len(seq)
-        s_star = sum([(bd.calc_cdf(x, u, v) - (2 * i - 1) / (2 * len_seq))**2 \
-            for x, i in zip(seq, range(1, len_seq+1))])
-        return s_star + (12 * len_seq)
+        s_star = 0
+        for i in range(len_seq):
+            addition = (2 * i - 1) / (2 * len_seq)
+            P = bd.calc_cdf(seq[i], u, v)
+            s_star += (P - addition)**2
+        return s_star + 1 / (12 * len_seq)
     
     def i_func(s_star):
         v = 1/4
@@ -159,24 +165,15 @@ def chisqr_test_fish(sequence, alpha, u, v):
     """Тест Хи-квадрат для распределения Фишера"""
     print("Тест хи квадрат для распределения Фишера:")
 
-    i = 0
-    l = len(sequence)
-    while i < l:
-        if sequence[i] > 6:
-            sequence.remove(sequence[i])
-            i -= 1
-            l -= 1
-        i +=1
-
     max_in_seq = max(sequence)
     min_in_seq = min(sequence)
     len_seq = len(sequence)
     # разбиваем отрезок на интервалы
     intervals_amount = int(5 * sc.log10(len_seq))
     K = intervals_amount
-    lngth = (max_in_seq - min_in_seq)/K
-    intervals = [x * lngth + min_in_seq for x in range(0, K+1)]
-    
+    lngth = (max_in_seq - min_in_seq) / K
+    #lngth = (min_in_seq + max_in_seq) / 2
+    intervals = [x * lngth + min_in_seq for x in range(0, K+1)]    
     #определяем количество попаданий в интервалы
     hits_amount = []    
     for a, b in zip(intervals[:-1], intervals[1:]):
@@ -208,7 +205,7 @@ def chisqr_test_fish(sequence, alpha, u, v):
         plt.savefig(url)
         plt.show()
 
-    graph(intervals, probabils, emper_prob, lngth, u, v, len_seq)
+    #graph(intervals, probabils, emper_prob, lngth, u, v, len_seq)
     # вычисляется статистика
     addition = 0
     for hits, probs in zip(hits_amount, probabils):
@@ -230,3 +227,33 @@ def chisqr_test_fish(sequence, alpha, u, v):
 
     print("\tP(S*>S) - {}".format(prob_s))
     print("\tПрохождение теста - {}\n".format(prob_s > alpha))
+
+    # Костыли по удалению больших значений
+
+    i = 0
+    l = len(sequence)
+    while i < l:
+        if sequence[i] > 6:
+            sequence.remove(sequence[i])
+            i -= 1
+            l -= 1
+        i +=1
+
+    max_in_seq = max(sequence)
+    min_in_seq = min(sequence)
+    len_seq = len(sequence)
+    # разбиваем отрезок на интервалы
+    intervals_amount = int(5 * sc.log10(len_seq))
+    K = intervals_amount
+    lngth = (max_in_seq - min_in_seq) / K
+    #lngth = (min_in_seq + max_in_seq) / 2
+    intervals = [x * lngth + min_in_seq for x in range(0, K+1)]    
+    #определяем количество попаданий в интервалы
+    hits_amount = []    
+    for a, b in zip(intervals[:-1], intervals[1:]):
+            count = sum([a <= x < b for x in sequence])
+            hits_amount.append(count)
+
+    emper_prob = [x / len_seq for x in hits_amount]
+    probabils = calc_probs(intervals)
+    graph(intervals, probabils, emper_prob, lngth, u, v, len_seq)
