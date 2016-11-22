@@ -27,11 +27,11 @@ def main():
     seq_bet = [beta.second_method(u, v) for i in range(length)]
 
     tests.chisqr_test_bet(seq_bet, alpha, u, v)
-    tests.kramer_smirnov_bet(seq_bet, alpha, u, v)
+    #tests.smirnov_beta(seq_bet, alpha, u, v)
 
     seq_fish = [fisher.second_method(u, v) for i in range(length)]
     tests.chisqr_test_fish(seq_fish, alpha, u, v)
-    tests.kramer_smirnov_fish(seq_fish, alpha, u, v)
+    tests.kolmagorov(seq_fish, alpha, u, v)
 
 if __name__ == "__main__":
     main()

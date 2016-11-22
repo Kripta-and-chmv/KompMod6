@@ -11,7 +11,7 @@ def bessel(u, v):
 
 def calc_pdf(x, u, v):
     numer = x**(u/2 - 1) * u**(u / 2) * v**(v / 2)
-    denumer = bessel(u/2, v/2) * (v + u*x)**((u + v) / 2)
+    denumer = scsp.beta(u/2, v/2) * (v + u*x)**((u + v) / 2)
     return numer / denumer
 
 def calc_cdf(x, u, v):
@@ -25,7 +25,7 @@ def calc_cdf(x, u, v):
 
         return inc_bet(x, a, b)/scsp.beta(a, b)
 
-    #cdf1 = sc.integrate.quad(calc_pdf, -np.inf, x, args = (u, v))
+    #cdf1 = sc.integrate.quad(calc_pdf, 0, x, args = (u, v))
     cdf2 = i_func(u*x/(u*x + v), u/2, v/2)
 
     return cdf2

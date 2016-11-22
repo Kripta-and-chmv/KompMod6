@@ -6,93 +6,56 @@ import fisher
 import beta_distrib as bd
 import matplotlib.pyplot as plt
 
-def kramer_smirnov_fish(seq, alpha, u, v):
-    """Тест Крамера-Мизеса-Смирнова"""
-    def calc_s_star(seq):
-        """Вычисляется S*"""
-        len_seq = len(seq)
-        s_star = 0
-        for i in range(len_seq):
-            addition = (2 * i - 1) / (2 * len_seq)
-            P = fisher.calc_cdf(seq[i], u, v)
-            s_star += (P - addition)**2
-        return s_star + 1 / (12 * len_seq)
-    
-    def i_func(s_star):
-        v = 1/4
-        z = 1/(16*s_star)
-        sum1 = scsp.iv(-v,z)
-        sum2 = scsp.iv(v,z)
-        return sum1 - sum2
+def kolmagorov(seq, alpha, u, v):
+    def calc_d_plus(seq, u, v):
+        d = []
+        lng = len(seq)
+        for i, x in zip(range(1, lng+1), seq):
+            el = i/lng - fisher.calc_cdf(x, u, v)
+            d.append(el)
+        return max(d)
 
-    def calc_a1(s_star):
-        """Вычисляется а1"""
-        j = 0
-        t = (4*j + 1)**2 / (16 * s_star)
+    def calc_d_minus(seq, u, v):
+        d = []
+        lng = len(seq)
+        for i, x in zip(range(1, lng+1), seq):
+            el = fisher.calc_cdf(x, u, v) - (i - 1)/lng
+            d.append(el)
+        return max(d)
 
-        inf_sum = (scsp.gamma(j + 0.5) * np.sqrt(4*j + 1) *\
-            np.exp(-t)) * i_func(s_star) /\
-            (scsp.gamma(0.5) * scsp.gamma(j + 1))
+    def calc_dn(seq, u, v):
+        d_min = calc_d_minus(seq, u, v)
+        d_plus = calc_d_plus(seq, u, v)
+        return max(d_min, d_plus)
 
-        return inf_sum / np.sqrt(2 * s_star)
+    def calc_s_star(seq, u, v):
+        dn = calc_dn(seq, u, v)
+        lng = len(seq)
+        s_star = (6 * lng * dn + 1) / (6 * np.sqrt(lng))
+        return s_star
 
-    print("Тест Крамера-Мизеса-Смирнова для распределения Фишера:")
+    def calc_prob_s_grtr_sstr(s_star):
+        i = 0
+        k = 0
+        for i in range(-10000, 10000):
+            k += (-1)**i * sc.exp(-2 * i**2 * s_star**2)
+        return 1 - k
+
+    print("Тест Колмогорова:")
+
     seq.sort()
-
-    s_star = calc_s_star(seq)
+    
+    s_star = calc_s_star(seq, u, v)
     print("\tЗначение статистики - {}".format(s_star))
 
-    a1 = calc_a1(s_star)
-    print("\tP(S*>S) - {}".format(1 - a1))
-    print("\tПрохождение теста - {}\n".format(1 - a1 > alpha))
+    prob_s = calc_prob_s_grtr_sstr(s_star)
+    print("\tP(S* > S) - {}".format(prob_s))
 
-    hit = 1 - a1 > alpha
     
+    hit = prob_s > alpha
+    print("\tРезультат прохождения теста - {}\n".format(hit))
     return hit
 
-def kramer_smirnov_bet(seq, alpha, u, v):
-    """Тест Крамера-Мизеса-Смирнова"""
-    def calc_s_star(seq):
-        """Вычисляется S*"""
-        len_seq = len(seq)
-        s_star = 0
-        for i in range(len_seq):
-            addition = (2 * i - 1) / (2 * len_seq)
-            P = bd.calc_cdf(seq[i], u, v)
-            s_star += (P - addition)**2
-        return s_star + 1 / (12 * len_seq)
-    
-    def i_func(s_star):
-        v = 1/4
-        z = 1/(16*s_star)
-        sum1 = scsp.iv(-v,z)
-        sum2 = scsp.iv(v,z)
-        return sum1 - sum2
-
-    def calc_a1(s_star):
-        """Вычисляется а1"""
-        j = 0
-        t = (4*j + 1)**2 / (16 * s_star)
-
-        inf_sum = (scsp.gamma(j + 0.5) * np.sqrt(4*j + 1) *\
-            np.exp(-t)) * i_func(s_star) /\
-            (scsp.gamma(0.5) * scsp.gamma(j + 1))
-
-        return inf_sum / np.sqrt(2 * s_star)
-
-    print("Тест Крамера-Мизеса-Смирнова для бета-распределения:")
-    seq.sort()
-
-    s_star = calc_s_star(seq)
-    print("\tЗначение статистики - {}".format(s_star))
-
-    a1 = calc_a1(s_star)
-    print("\tP(S*>S) - {}".format(1 - a1))
-    print("\tПрохождение теста - {}\n".format(1 - a1 > alpha))
-
-    hit = 1 - a1 > alpha
-    
-    return hit
 
 def chisqr_test_bet(sequence, alpha, u, v):
     """Тест Хи-квадрат для бета-распределения"""
