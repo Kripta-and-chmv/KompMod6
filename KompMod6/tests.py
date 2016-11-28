@@ -6,7 +6,57 @@ import fisher
 import beta_distrib as bd
 import matplotlib.pyplot as plt
 
-def kolmagorov(seq, alpha, u, v):
+def kolmagorov_bd(seq, alpha, u, v):
+    def calc_d_plus(seq, u, v):
+        d = []
+        lng = len(seq)
+        for i, x in zip(range(1, lng+1), seq):
+            el = i/lng - bd.calc_cdf(x, u, v)
+            d.append(el)
+        return max(d)
+
+    def calc_d_minus(seq, u, v):
+        d = []
+        lng = len(seq)
+        for i, x in zip(range(1, lng+1), seq):
+            el = bd.calc_cdf(x, u, v) - (i - 1)/lng
+            d.append(el)
+        return max(d)
+
+    def calc_dn(seq, u, v):
+        d_min = calc_d_minus(seq, u, v)
+        d_plus = calc_d_plus(seq, u, v)
+        return max(d_min, d_plus)
+
+    def calc_s_star(seq, u, v):
+        dn = calc_dn(seq, u, v)
+        lng = len(seq)
+        s_star = (6 * lng * dn + 1) / (6 * np.sqrt(lng))
+        return s_star
+
+    def calc_prob_s_grtr_sstr(s_star):
+        i = 0
+        k = 0
+        for i in range(-10000, 10000):
+            k += (-1)**i * sc.exp(-2 * i**2 * s_star**2)
+        return 1 - k
+
+    print("Тест Колмогорова:")
+
+    seq.sort()
+    
+    s_star = calc_s_star(seq, u, v)
+    print("\tЗначение статистики - {}".format(s_star))
+
+    prob_s = calc_prob_s_grtr_sstr(s_star)
+    print("\tP(S* > S) - {}".format(prob_s))
+
+    
+    hit = prob_s > alpha
+    print("\tРезультат прохождения теста - {}\n".format(hit))
+    return hit
+
+def kolmagorov_fisher(seq, alpha, u, v):
     def calc_d_plus(seq, u, v):
         d = []
         lng = len(seq)
@@ -101,7 +151,7 @@ def chisqr_test_bet(sequence, alpha, u, v):
         plt.savefig(url)
         plt.show()
 
-    graph(intervals, probabils, emper_prob, lngth, u, v, len_seq)
+    #graph(intervals, probabils, emper_prob, lngth, u, v, len_seq)
     # вычисляется статистика
     addition = 0
     for hits, probs in zip(hits_amount, probabils):
@@ -196,7 +246,7 @@ def chisqr_test_fish(sequence, alpha, u, v):
     i = 0
     l = len(sequence)
     while i < l:
-        if sequence[i] > 6:
+        if sequence[i] > 10:
             sequence.remove(sequence[i])
             i -= 1
             l -= 1
@@ -219,4 +269,4 @@ def chisqr_test_fish(sequence, alpha, u, v):
 
     emper_prob = [x / len_seq for x in hits_amount]
     probabils = calc_probs(intervals)
-    graph(intervals, probabils, emper_prob, lngth, u, v, len_seq)
+    #graph(intervals, probabils, emper_prob, lngth, u, v, len_seq)
